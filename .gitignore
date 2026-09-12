@@ -1,0 +1,35 @@
+@"
+# Secrets
+.env
+*.pem
+*.key
+credentials
+credentials.*
+.aws/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Kubernetes
+*.secret.yaml
+
+# Java
+target/
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+"@ | Out-File -Encoding utf8 .gitignore
