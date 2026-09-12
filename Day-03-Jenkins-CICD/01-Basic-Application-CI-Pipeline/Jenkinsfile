@@ -11,25 +11,28 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'mvn clean compile'
+                dir('Day-03-Jenkins-CICD/01-Basic-Application-CI-Pipeline') {
+                    bat 'mvn clean compile'
+                }
             }
         }
 
         stage('Unit Tests') {
             steps {
-                bat 'mvn test'
+                dir('Day-03-Jenkins-CICD/01-Basic-Application-CI-Pipeline') {
+                    bat 'mvn test'
+                }
             }
         }
-
     }
 
     post {
         always {
-            junit 'target/surefire-reports/*.xml'
+            junit 'Day-03-Jenkins-CICD/01-Basic-Application-CI-Pipeline/target/surefire-reports/*.xml'
         }
 
         success {
-            echo 'Build and tests passed!'
+            echo 'Build and tests completed successfully!'
         }
 
         failure {
