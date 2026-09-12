@@ -1,0 +1,38 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean package -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml test'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t ai-notepad:latest -f 03-Docker-Build-Push-Pipeline/Dockerfile .'
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo 'Webhook triggered CI/CD successfully!'
+        }
+    }
+}

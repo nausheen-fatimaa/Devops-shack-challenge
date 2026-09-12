@@ -1,0 +1,81 @@
+pipeline {
+
+    agent any
+
+    environment {
+        IMAGE_NAME = "ai-notepad"
+        IMAGE_TAG = "latest"
+        CONTAINER_NAME = "ai-notepad-container"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean package -DskipTests'
+            }
+        }
+
+        stage('Unit Testing') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml test'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t %IMAGE_NAME%:%IMAGE_TAG% -f 10-Complete-CI-CD-Pipeline/Dockerfile .'
+            }
+        }
+
+        stage('Docker Test') {
+            steps {
+                bat 'docker rm -f %CONTAINER_NAME% || exit /b 0'
+                bat 'docker run -d --name %CONTAINER_NAME% -p 8080:8080 %IMAGE_NAME%:%IMAGE_TAG%'
+            }
+        }
+
+        stage('Verify Container') {
+            steps {
+                bat 'docker ps'
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input message: 'Approve production deployment?', ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Application deployed successfully!'
+            }
+        }
+
+    }
+
+    post {
+
+        success {
+            echo '======================================'
+            echo ' COMPLETE CI/CD PIPELINE SUCCESSFUL '
+            echo ' Docker Image: ai-notepad:latest'
+            echo '======================================'
+        }
+
+        failure {
+            echo 'CI/CD Pipeline failed!'
+        }
+
+        always {
+            bat 'docker ps -a'
+        }
+    }
+}
