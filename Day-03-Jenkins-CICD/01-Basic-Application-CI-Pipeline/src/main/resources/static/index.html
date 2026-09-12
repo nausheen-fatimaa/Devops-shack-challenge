@@ -1,0 +1,512 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Notepad</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- ================= HEADER ================= -->
+
+        <header class="topbar">
+
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+
+                <div>
+                    <h1>AI Notepad</h1>
+                    <span>Write. Organize. Think.</span>
+                </div>
+            </div>
+
+            <div class="top-actions">
+
+                <button id="newNoteBtn" class="top-btn primary">
+                    <i class="fa-solid fa-plus"></i>
+                    New Note
+                </button>
+
+                <button id="saveBtn" class="top-btn">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Save
+                </button>
+
+                <button id="downloadBtn" class="top-btn">
+                    <i class="fa-solid fa-download"></i>
+                    Download
+                </button>
+
+                <button id="themeBtn" class="icon-btn" title="Toggle theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= MAIN ================= -->
+
+        <main class="workspace">
+
+
+            <!-- ================= SIDEBAR ================= -->
+
+            <aside class="sidebar">
+
+                <div class="sidebar-header">
+
+                    <div>
+                        <h2>My Notes</h2>
+                        <span id="noteCount">0 notes</span>
+                    </div>
+
+                    <button id="sidebarNewBtn" class="small-icon-btn" title="Create note">
+
+                        <i class="fa-solid fa-plus"></i>
+
+                    </button>
+
+                </div>
+
+
+                <!-- Search -->
+
+                <div class="search-box">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input type="text" id="searchInput" placeholder="Search notes..." autocomplete="off">
+
+                </div>
+
+
+                <!-- Notes -->
+
+                <div id="notesList" class="notes-list"></div>
+
+
+                <!-- Sidebar Footer -->
+
+                <div class="sidebar-footer">
+
+                    <div class="storage-status">
+
+                        <i class="fa-solid fa-cloud"></i>
+
+                        <div>
+                            <strong>Local Storage</strong>
+                            <span>Your notes are saved locally</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+
+            <!-- ================= EDITOR ================= -->
+
+            <section class="editor-section">
+
+
+                <!-- Editor Header -->
+
+                <div class="editor-header">
+
+                    <div class="title-area">
+
+                        <input id="noteTitle" class="note-title" type="text" placeholder="Untitled Note">
+
+                        <div class="note-meta">
+
+                            <span id="saveStatus">
+                                <i class="fa-solid fa-circle"></i>
+                                Saved
+                            </span>
+
+                            <span class="separator">•</span>
+
+                            <span id="lastUpdated">
+                                Just now
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="editor-actions">
+
+                        <button id="renameBtn" class="editor-btn" title="Rename note">
+
+                            <i class="fa-solid fa-pen"></i>
+
+                        </button>
+
+                        <button id="deleteBtn" class="editor-btn danger" title="Delete note">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Toolbar -->
+
+                <div class="editor-toolbar">
+
+                    <div class="toolbar-group">
+
+                        <button id="undoBtn" title="Undo">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+
+                        <button id="redoBtn" title="Redo">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+
+                    </div>
+
+                    <div class="toolbar-divider"></div>
+
+                    <div class="toolbar-group">
+
+                        <button id="cutBtn" title="Cut">
+                            <i class="fa-solid fa-scissors"></i>
+                        </button>
+
+                        <button id="copyBtn" title="Copy">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+
+                        <button id="pasteBtn" title="Paste">
+                            <i class="fa-regular fa-clipboard"></i>
+                        </button>
+
+                    </div>
+
+                    <div class="toolbar-divider"></div>
+
+                    <button id="clearBtn" title="Clear note">
+                        <i class="fa-solid fa-eraser"></i>
+                    </button>
+
+                </div>
+
+
+                <!-- Text Editor -->
+
+                <div class="editor-container">
+
+                    <textarea id="noteContent" placeholder="Start writing your note..." spellcheck="true"></textarea>
+
+                </div>
+
+
+                <!-- Editor Footer -->
+
+                <div class="editor-footer">
+
+                    <div class="document-stats">
+
+                        <span>
+                            <i class="fa-regular fa-file-lines"></i>
+                            <span id="lineCount">1</span> lines
+                        </span>
+
+                        <span>
+                            <span id="wordCount">0</span> words
+                        </span>
+
+                        <span>
+                            <span id="charCount">0</span> characters
+                        </span>
+
+                    </div>
+
+                    <div>
+                        Plain Text
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================= GEMINI PANEL ================= -->
+
+            <aside class="ai-panel">
+
+                <div class="ai-header">
+
+                    <div class="ai-title">
+
+                        <div class="ai-icon">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+
+                        <div>
+                            <h2>Gemini AI</h2>
+                            <span>Your writing assistant</span>
+                        </div>
+
+                    </div>
+
+                    <div class="ai-status">
+                        <span></span>
+                        Ready
+                    </div>
+
+                </div>
+
+
+                <!-- AI Empty State -->
+
+                <div class="ai-content">
+
+                    <div class="ai-welcome">
+
+                        <div class="welcome-icon">
+                            <i class="fa-solid fa-sparkles"></i>
+                        </div>
+
+                        <h3>How can I help?</h3>
+
+                        <p>
+                            Select text or use your note to ask Gemini
+                            for help with writing, editing and ideas.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Quick Actions -->
+
+                    <div class="quick-actions">
+
+                        <button class="ai-action" data-action="summarize">
+
+                            <div class="action-icon">
+                                <i class="fa-solid fa-align-left"></i>
+                            </div>
+
+                            <div>
+                                <strong>Summarize</strong>
+                                <span>Get the key points</span>
+                            </div>
+
+                        </button>
+
+
+                        <button class="ai-action" data-action="improve">
+
+                            <div class="action-icon">
+                                <i class="fa-solid fa-wand-magic"></i>
+                            </div>
+
+                            <div>
+                                <strong>Improve Writing</strong>
+                                <span>Make it clearer</span>
+                            </div>
+
+                        </button>
+
+
+                        <button class="ai-action" data-action="grammar">
+
+                            <div class="action-icon">
+                                <i class="fa-solid fa-spell-check"></i>
+                            </div>
+
+                            <div>
+                                <strong>Fix Grammar</strong>
+                                <span>Correct mistakes</span>
+                            </div>
+
+                        </button>
+
+
+                        <button class="ai-action" data-action="explain">
+
+                            <div class="action-icon">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+
+                            <div>
+                                <strong>Explain</strong>
+                                <span>Understand your text</span>
+                            </div>
+
+                        </button>
+
+
+                        <button class="ai-action" data-action="ideas">
+
+                            <div class="action-icon">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+
+                            <div>
+                                <strong>Generate Ideas</strong>
+                                <span>Brainstorm with AI</span>
+                            </div>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- AI Response -->
+
+                    <div id="aiResponse" class="ai-response hidden">
+
+                        <div class="response-header">
+
+                            <span>
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                Gemini
+                            </span>
+
+                            <button id="clearResponseBtn">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+
+                        </div>
+
+                        <div id="aiResponseText"></div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AI Chat -->
+
+                <div class="ai-chat">
+
+                    <textarea id="aiInput" placeholder="Ask Gemini anything..." rows="2"></textarea>
+
+                    <button id="askAiBtn">
+
+                        <i class="fa-solid fa-arrow-up"></i>
+
+                    </button>
+
+                </div>
+
+                <div class="ai-disclaimer">
+                    Gemini can make mistakes. Check important information.
+                </div>
+
+            </aside>
+
+        </main>
+
+    </div>
+
+
+    <!-- Rename Modal -->
+
+    <div id="renameModal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <h3>Rename Note</h3>
+
+                <button id="closeRenameModal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+            <input id="renameInput" type="text" placeholder="Enter note name">
+
+            <div class="modal-actions">
+
+                <button id="cancelRename" class="modal-btn">
+                    Cancel
+                </button>
+
+                <button id="confirmRename" class="modal-btn primary">
+                    Rename
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Delete Confirmation Modal -->
+
+    <div id="deleteModal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <div class="modal-header">
+
+                <h3>Delete Note?</h3>
+
+                <button id="closeDeleteModal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+            <div class="delete-message">
+
+                <div class="warning-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+
+                <p>
+                    Are you sure you want to delete this note?
+                    This action cannot be undone.
+                </p>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button id="cancelDelete" class="modal-btn">
+                    Cancel
+                </button>
+
+                <button id="confirmDelete" class="modal-btn delete-confirm">
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
+ 
