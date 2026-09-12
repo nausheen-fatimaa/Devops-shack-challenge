@@ -1,4 +1,5 @@
 pipeline {
+
     agent any
 
     stages {
@@ -10,18 +11,26 @@ pipeline {
         }
 
         stage('Build') {
-            steps {
-                dir('Day-03-Jenkins-CICD/01-Basic-Application-CI-Pipeline') {
+            steps {                
+		 
                     bat 'mvn clean compile'
                 }
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean compile'
             }
         }
 
-        stage('Unit Tests') {
+        stage('Test') {
             steps {
-                dir('Day-03-Jenkins-CICD/01-Basic-Application-CI-Pipeline') {
+	
                     bat 'mvn test'
-                }
+               }
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml package'
             }
         }
     }
@@ -33,10 +42,12 @@ pipeline {
 
         success {
             echo 'Build and tests completed successfully!'
+        success {
+            echo 'CI Pipeline completed successfully!'
         }
 
         failure {
-            echo 'Build or tests failed!'
+            echo 'CI Pipeline failed!'
         }
     }
 }
