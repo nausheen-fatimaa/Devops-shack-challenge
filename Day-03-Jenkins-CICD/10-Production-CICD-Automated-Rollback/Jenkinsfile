@@ -3,8 +3,7 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = "jiohotstar"
-        CONTAINER_NAME = "jiohotstar-prod"
+        PROJECT_DIR = "Day-03-Jenkins-CICD/10-Production-CICD-Automated-Rollback"
         NEW_IMAGE = "jiohotstar:${BUILD_NUMBER}"
         PREVIOUS_IMAGE = "jiohotstar:previous"
     }
@@ -19,19 +18,25 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'npm ci'
+                dir("${PROJECT_DIR}") {
+                    bat 'npm ci'
+                }
             }
         }
 
         stage('Build Application') {
             steps {
-                bat 'npm run build'
+                dir("${PROJECT_DIR}") {
+                    bat 'npm run build'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %NEW_IMAGE% .'
+                dir("${PROJECT_DIR}") {
+                    bat 'docker build -t %NEW_IMAGE% .'
+                }
             }
         }
 
@@ -52,46 +57,51 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                bat 'scripts\\deploy.bat %NEW_IMAGE%'
+                dir("${PROJECT_DIR}") {
+                    bat 'scripts\\deploy.bat %NEW_IMAGE%'
+                }
             }
         }
 
         stage('Health Check') {
             steps {
+                dir("${PROJECT_DIR}") {
+                    script {
 
-                script {
+                        def healthResult = bat(
+                            script: 'scripts\\health-check.bat',
+                            returnStatus: true
+                        )
 
-                    def healthResult = bat(
-                        script: 'scripts\\health-check.bat',
-                        returnStatus: true
-                    )
+                        if (healthResult != 0) {
 
-                    if (healthResult != 0) {
+                            echo "=========================================="
+                            echo "HEALTH CHECK FAILED"
+                            echo "=========================================="
 
-                        echo "=========================================="
-                        echo "HEALTH CHECK FAILED"
-                        echo "=========================================="
+                            if (env.BUILD_NUMBER != '1') {
 
-                        if (env.BUILD_NUMBER != '1') {
+                                echo "Starting automated rollback..."
 
-                            echo "Starting automated rollback..."
+                                def rollbackResult = bat(
+                                    script: 'scripts\\rollback.bat %PREVIOUS_IMAGE%',
+                                    returnStatus: true
+                                )
 
-                            def rollbackResult = bat(
-                                script: 'scripts\\rollback.bat %PREVIOUS_IMAGE%',
-                                returnStatus: true
-                            )
+                                if (rollbackResult != 0) {
+                                    error("ROLLBACK FAILED")
+                                }
 
-                            if (rollbackResult != 0) {
-                                error("ROLLBACK FAILED")
+                                error("Deployment failed. Previous version restored.")
+
+                            } else {
+
+                                error("Deployment failed and no previous version exists.")
                             }
-
-                            error("Deployment failed. Previous version restored.")
                         }
 
-                        error("Deployment failed and no previous version exists.")
+                        echo "Health check passed."
                     }
-
-                    echo "Health check passed."
                 }
             }
         }
