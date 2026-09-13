@@ -41,20 +41,21 @@ pipeline {
         }
 
         stage('Save Previous Version') {
-            steps {
-                bat '''
-                docker image inspect jiohotstar:current >nul 2>&1
+    steps {
+        bat '''
+        docker image inspect jiohotstar:current >nul 2>&1
 
-                if %errorlevel% EQU 0 (
-                    docker tag jiohotstar:current jiohotstar:previous
-                    echo Previous production image saved.
-                ) else (
-                    echo No previous production image found.
-                )
-                '''
-            }
-        }
+        if %errorlevel% EQU 0 (
+            docker tag jiohotstar:current jiohotstar:previous
+            echo Previous production image saved.
+        ) else (
+            echo No previous production image found.
+        )
 
+        exit /b 0
+        '''
+    }
+}
         stage('Deploy') {
             steps {
                 dir("${PROJECT_DIR}") {
