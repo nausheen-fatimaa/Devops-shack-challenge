@@ -1,0 +1,33 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean compile'
+            }
+        }
+
+        stage('Run Unit Tests') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml test'
+            }
+        }
+
+        stage('Generate Test Report') {
+            steps {
+                junit '01-Basic-Application-CI-Pipeline/target/surefire-reports/*.xml'
+            }
+        }
+
+    }
+
+}

@@ -1,0 +1,128 @@
+pipeline {
+
+    agent any
+
+    environment {
+        APP_NAME = "jiohotstar"
+        CONTAINER_NAME = "jiohotstar-prod"
+        NEW_IMAGE = "jiohotstar:${BUILD_NUMBER}"
+        PREVIOUS_IMAGE = "jiohotstar:previous"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'npm ci'
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                bat 'npm run build'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t %NEW_IMAGE% .'
+            }
+        }
+
+        stage('Save Previous Version') {
+            steps {
+                bat '''
+                docker image inspect jiohotstar:current >nul 2>&1
+
+                if %errorlevel% EQU 0 (
+                    docker tag jiohotstar:current jiohotstar:previous
+                    echo Previous production image saved.
+                ) else (
+                    echo No previous production image found.
+                )
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat 'scripts\\deploy.bat %NEW_IMAGE%'
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+
+                script {
+
+                    def healthResult = bat(
+                        script: 'scripts\\health-check.bat',
+                        returnStatus: true
+                    )
+
+                    if (healthResult != 0) {
+
+                        echo "=========================================="
+                        echo "HEALTH CHECK FAILED"
+                        echo "=========================================="
+
+                        if (env.BUILD_NUMBER != '1') {
+
+                            echo "Starting automated rollback..."
+
+                            def rollbackResult = bat(
+                                script: 'scripts\\rollback.bat %PREVIOUS_IMAGE%',
+                                returnStatus: true
+                            )
+
+                            if (rollbackResult != 0) {
+                                error("ROLLBACK FAILED")
+                            }
+
+                            error("Deployment failed. Previous version restored.")
+                        }
+
+                        error("Deployment failed and no previous version exists.")
+                    }
+
+                    echo "Health check passed."
+                }
+            }
+        }
+
+        stage('Mark Current Version') {
+            steps {
+                bat '''
+                docker tag %NEW_IMAGE% jiohotstar:current
+                echo Current production image updated.
+                '''
+            }
+        }
+    }
+
+    post {
+
+        success {
+            echo "=========================================="
+            echo "PRODUCTION DEPLOYMENT SUCCESSFUL"
+            echo "=========================================="
+        }
+
+        failure {
+            echo "=========================================="
+            echo "PIPELINE FAILED"
+            echo "=========================================="
+        }
+
+        always {
+            bat 'docker ps -a'
+            bat 'docker images jiohotstar'
+        }
+    }
+}

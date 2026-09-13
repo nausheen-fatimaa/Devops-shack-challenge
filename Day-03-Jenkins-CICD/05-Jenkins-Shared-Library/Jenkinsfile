@@ -1,0 +1,47 @@
+pipeline {
+
+    agent any
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'test', 'prod'],
+            description: 'Select deployment environment'
+        )
+
+        string(
+            name: 'IMAGE_TAG',
+            defaultValue: 'latest',
+            description: 'Docker image tag'
+        )
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean package -DskipTests'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t ai-notepad:%IMAGE_TAG% -f 03-Docker-Build-Push-Pipeline/Dockerfile .'
+            }
+        }
+
+        stage('Deployment Information') {
+            steps {
+                echo "Environment: ${params.ENVIRONMENT}"
+                echo "Image Tag: ${params.IMAGE_TAG}"
+            }
+        }
+
+    }
+}

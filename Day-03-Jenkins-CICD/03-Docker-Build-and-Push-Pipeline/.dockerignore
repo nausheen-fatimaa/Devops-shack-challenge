@@ -1,0 +1,9 @@
+.git
+.gitignore
+README.md
+screenshots/
+logs/
+docs/
+src/test/
+target/*.original
+*.log
