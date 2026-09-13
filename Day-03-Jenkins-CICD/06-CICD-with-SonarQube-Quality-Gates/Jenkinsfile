@@ -1,0 +1,45 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Parallel Tests') {
+
+            parallel {
+
+                stage('Unit Tests') {
+                    steps {
+                        bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml test'
+                    }
+                }
+
+                stage('Compile Check') {
+                    steps {
+                        bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml compile'
+                    }
+                }
+
+                stage('Docker Check') {
+                    steps {
+                        bat 'docker --version'
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml package -DskipTests'
+                bat 'docker build -t ai-notepad:latest -f 03-Docker-Build-Push-Pipeline/Dockerfile .'
+            }
+        }
+
+    }
+}

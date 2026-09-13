@@ -1,0 +1,53 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {                
+		 
+                    bat 'mvn clean compile'
+                }
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+	
+                    bat 'mvn test'
+               }
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml package'
+            }
+        }
+    }
+
+    post {
+        always {
+            junit 'Day-03-Jenkins-CICD/01-Basic-Application-CI-Pipeline/target/surefire-reports/*.xml'
+        }
+
+        success {
+            echo 'Build and tests completed successfully!'
+        success {
+            echo 'CI Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'CI Pipeline failed!'
+        }
+    }
+}

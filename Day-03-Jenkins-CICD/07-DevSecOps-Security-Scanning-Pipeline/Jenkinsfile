@@ -1,0 +1,33 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Build') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean package -DskipTests'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t ai-notepad:latest -f 03-Docker-Build-Push-Pipeline/Dockerfile .'
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input message: 'Approve deployment to production?', ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat 'docker rm -f ai-notepad-container || exit /b 0'
+                bat 'docker run -d --name ai-notepad-container -p 8080:8080 ai-notepad:latest'
+            }
+        }
+
+    }
+}
