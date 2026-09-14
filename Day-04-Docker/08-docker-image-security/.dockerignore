@@ -1,0 +1,16 @@
+.git
+.gitignore
+.env
+.env.*
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+venv
+.venv
+node_modules
+dist
+target
+*.log
+screenshots
+README.md
