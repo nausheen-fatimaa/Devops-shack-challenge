@@ -1,0 +1,24 @@
+services:
+
+  health-app:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: docker-health-app
+    ports:
+      - "5002:5000"
+
+    restart: unless-stopped
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

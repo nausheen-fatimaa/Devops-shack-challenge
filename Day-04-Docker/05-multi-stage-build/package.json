@@ -1,0 +1,9 @@
+{
+  "name": "multi-stage-docker-demo",
+  "version": "1.0.0",
+  "description": "Docker multi-stage build demonstration",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node dist/server.js"
+  }
+}

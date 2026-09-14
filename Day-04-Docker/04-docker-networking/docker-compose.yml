@@ -1,0 +1,35 @@
+services:
+
+  frontend:
+    build: ./frontend
+    container_name: networking-frontend
+    ports:
+      - "8083:80"
+    networks:
+      - frontend-network
+
+  backend:
+    build: ./backend
+    container_name: networking-backend
+    ports:
+      - "5003:5000"
+    networks:
+      - frontend-network
+      - backend-network
+
+  database:
+    build: ./database
+    container_name: networking-database
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: networkingdb
+    networks:
+      - backend-network
+
+networks:
+
+  frontend-network:
+    driver: bridge
+
+  backend-network:
+    driver: bridge
