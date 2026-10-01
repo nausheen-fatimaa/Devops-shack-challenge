@@ -1,0 +1,18 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: day8-require-nonroot
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: nonroot
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        message: Pods must run as non-root.
+        pattern:
+          spec:
+            securityContext:
+              runAsNonRoot: true

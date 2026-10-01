@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify Gitleaks') {
+            steps {
+                bat 'where gitleaks'
+                bat 'gitleaks version'
+            }
+        }
+
+        stage('Secret Scan') {
+            steps {
+                bat 'gitleaks detect --source . --redact --no-git'
+            }
+        }
+
+    }
+
+    post {
+        always {
+            echo 'DevSecOps secret scanning completed.'
+        }
+
+        success {
+            echo '✅ No secrets detected. Pipeline can continue.'
+        }
+
+        failure {
+            echo '❌ Secret scan failed. Investigate the detected secret before continuing.'
+        }
+    }
+}

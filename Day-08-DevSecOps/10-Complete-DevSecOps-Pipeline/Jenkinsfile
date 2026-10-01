@@ -1,0 +1,62 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Secret Scan') {
+      steps { sh 'gitleaks detect --source . --redact' }
+    }
+
+    stage('SAST') {
+      steps { sh 'semgrep --config auto --error .' }
+    }
+
+    stage('SCA') {
+      steps {
+        sh 'mvn -f application/pom.xml test'
+        sh 'trivy fs --severity HIGH,CRITICAL --exit-code 1 .'
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'mvn -f application/pom.xml package -DskipTests'
+      }
+    }
+
+    stage('Container Build and Scan') {
+      steps {
+        sh 'docker build -t day8-devsecops-app:${BUILD_NUMBER} application'
+        sh 'trivy image --severity HIGH,CRITICAL --exit-code 1 day8-devsecops-app:${BUILD_NUMBER}'
+      }
+    }
+
+    stage('IaC Scan') {
+      steps {
+        sh 'checkov -d infrastructure/terraform'
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        sh 'kubectl apply -f kubernetes/namespace.yaml'
+        sh 'kubectl apply -f kubernetes/'
+      }
+    }
+
+    stage('DAST') {
+      steps {
+        echo 'Run OWASP ZAP against the authorized deployed test endpoint.'
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'reports/**/*', allowEmptyArchive: true
+    }
+  }
+}

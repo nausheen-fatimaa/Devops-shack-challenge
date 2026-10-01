@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: production-prometheus
+  namespace: production-demo
+
+spec:
+
+  replicas: 1
+
+  selector:
+
+    matchLabels:
+      app: production-prometheus
+
+  template:
+
+    metadata:
+
+      labels:
+        app: production-prometheus
+
+    spec:
+
+      containers:
+
+        - name: prometheus
+
+          image: prom/prometheus:latest
+
+          ports:
+
+            - containerPort: 9090
+
+          volumeMounts:
+
+            - name: config
+
+              mountPath: /etc/prometheus
+
+      volumes:
+
+        - name: config
+
+          configMap:
+
+            name: production-prometheus-config

@@ -1,0 +1,4 @@
+aws_region = "ap-south-1"
+environment = "dev"
+vpc_cidr = "10.50.0.0/16"
+instance_type = "t3.micro"

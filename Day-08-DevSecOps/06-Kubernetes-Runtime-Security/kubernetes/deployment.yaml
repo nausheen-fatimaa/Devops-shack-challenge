@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: runtime-demo
+  namespace: devsecops-runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runtime-demo
+  template:
+    metadata:
+      labels:
+        app: runtime-demo
+    spec:
+      containers:
+        - name: demo
+          image: busybox:1.36
+          command: ["sh", "-c", "while true; do date; sleep 30; done"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: false

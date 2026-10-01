@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: three-tier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: rootpassword
+            - name: MYSQL_DATABASE
+              value: appdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: three-tier
+spec:
+  selector:
+    app: database
+  ports:
+    - port: 3306
+      targetPort: 3306
+  type: ClusterIP

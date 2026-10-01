@@ -1,0 +1,57 @@
+frontend:
+  replicaCount: 3
+
+  image:
+    repository: nginx
+    tag: "1.27-alpine"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 80
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+
+    limits:
+      cpu: 500m
+      memory: 128Mi
+
+
+backend:
+  replicaCount: 3
+
+  image:
+    repository: nginx
+    tag: "1.27-alpine"
+    pullPolicy: IfNotPresent
+
+  service:
+    port: 80
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+
+    limits:
+      cpu: 500m
+      memory: 128Mi
+
+
+hpa:
+  enabled: true
+
+  minReplicas: 3
+  maxReplicas: 6
+
+  targetCPUUtilization: 60
+
+
+ingress:
+  enabled: true
+
+  className: nginx
+
+  host: production.local

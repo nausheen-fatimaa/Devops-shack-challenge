@@ -1,0 +1,8 @@
+aws_region    = "ap-south-1"
+instance_type = "t3.micro"
+db_username   = "admin"
+db_password   = "Admin123"
+
+# Do not put the real DB password here.
+# In PowerShell use:
+# $env:TF_VAR_db_password = "Admin123"

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: config-demo
+data:
+  APP_ENV: "development"
+  APP_NAME: "kubernetes-config-demo"
+  LOG_LEVEL: "info"
+  API_URL: "http://backend"

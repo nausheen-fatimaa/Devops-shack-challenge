@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: production-prometheus
+  namespace: production-demo
+
+spec:
+
+  type: ClusterIP
+
+  selector:
+    app: production-prometheus
+
+  ports:
+
+    - port: 9090
+
+      targetPort: 9090

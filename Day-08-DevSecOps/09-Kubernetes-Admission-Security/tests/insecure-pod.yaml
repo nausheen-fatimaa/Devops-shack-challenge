@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: insecure-pod
+spec:
+  containers:
+    - name: bad
+      image: nginx:alpine
+      securityContext:
+        privileged: true

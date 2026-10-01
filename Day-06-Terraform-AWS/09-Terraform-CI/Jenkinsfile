@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                bat 'terraform init -input=false'
+            }
+        }
+
+        stage('Format Check') {
+            steps {
+                bat 'terraform fmt -check -recursive'
+            }
+        }
+
+        stage('Validate') {
+            steps {
+                bat 'terraform validate'
+            }
+        }
+
+        stage('Plan') {
+            steps {
+                bat 'terraform plan -input=false -out=tfplan'
+            }
+        }
+
+        stage('Apply') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Apply Terraform changes?', ok: 'Apply'
+                bat 'terraform apply -input=false tfplan'
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'tfplan', allowEmptyArchive: true
+        }
+    }
+}

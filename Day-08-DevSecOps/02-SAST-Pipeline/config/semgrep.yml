@@ -1,0 +1,3 @@
+rules: []
+# Training note:
+# The Jenkinsfile uses `--config auto` for Semgrep's maintained automatic rules.

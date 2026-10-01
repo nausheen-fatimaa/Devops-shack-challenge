@@ -1,0 +1,1 @@
+semgrep --config auto --error .

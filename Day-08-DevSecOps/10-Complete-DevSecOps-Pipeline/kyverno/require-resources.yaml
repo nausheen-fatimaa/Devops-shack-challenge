@@ -1,0 +1,24 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: day8-require-resources
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: resources
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        message: Resource requests and limits are required.
+        foreach:
+          - list: request.object.spec.containers[]
+            pattern:
+              resources:
+                requests:
+                  cpu: '?*'
+                  memory: '?*'
+                limits:
+                  cpu: '?*'
+                  memory: '?*'

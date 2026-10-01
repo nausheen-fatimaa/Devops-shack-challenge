@@ -15,35 +15,28 @@ pipeline {
             }
         }
 
-        stage('Build Application') {
+        stage('Build') {
             steps {
                 bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml clean package -DskipTests'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Test') {
+            steps {
+                bat 'mvn -f 01-Basic-Application-CI-Pipeline/pom.xml test'
+            }
+        }
+
+        stage('Docker Build') {
             steps {
                 bat 'docker build -t %IMAGE_NAME%:%IMAGE_TAG% -f 03-Docker-Build-Push-Pipeline/Dockerfile .'
             }
         }
 
-        stage('Docker Login') {
+        stage('Docker Run') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USERNAME',
-                        passwordVariable: 'DOCKER_PASSWORD'
-                    )
-                ]) {
-                    bat 'docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%'
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                echo 'Configure Docker Hub username before pushing.'
+                bat 'docker rm -f ai-notepad-container || exit /b 0'
+                bat 'docker run -d --name ai-notepad-container -p 8080:8080 %IMAGE_NAME%:%IMAGE_TAG%'
             }
         }
 
@@ -51,11 +44,7 @@ pipeline {
 
     post {
         success {
-            echo 'Docker image ai-notepad:latest created successfully!'
-        }
-
-        failure {
-            echo 'Docker build/push pipeline failed!'
+            echo 'Complete CI/CD pipeline successful!'
         }
     }
 }

@@ -1,0 +1,28 @@
+pipeline {
+  agent any
+  stages {
+    stage('Checkout') { steps { checkout scm } }
+    stage('SAST - Semgrep') {
+      steps {
+        sh 'semgrep --config auto --error --json --output reports/semgrep-report.json .'
+      }
+    }
+    stage('SonarQube') {
+      steps {
+        withSonarQubeEnv('sonarqube') {
+          sh 'sonar-scanner -Dproject.settings=config/sonar-project.properties'
+        }
+      }
+    }
+    stage('Quality Gate') {
+      steps {
+        timeout(time: 5, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: true
+        }
+      }
+    }
+  }
+  post {
+    always { archiveArtifacts artifacts: 'reports/**/*', allowEmptyArchive: true }
+  }
+}

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: day8-config
+  namespace: day8-devsecops
+data:
+  APP_ENV: "training"

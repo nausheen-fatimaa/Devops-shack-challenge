@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-demo
+  template:
+    metadata:
+      labels:
+        app: vault-demo
+    spec:
+      serviceAccountName: vault-demo
+      containers:
+        - name: app
+          image: busybox:1.36
+          command: ["sh", "-c", "echo Vault integration placeholder; sleep 3600"]

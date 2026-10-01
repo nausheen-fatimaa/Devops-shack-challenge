@@ -1,0 +1,10 @@
+title = "Day 8 Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Training repository allowlist"
+paths = [
+  "01-Git-Secret-Scanning/tests/test-secret.txt"
+]
