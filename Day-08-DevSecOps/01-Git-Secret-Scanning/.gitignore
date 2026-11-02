@@ -1,0 +1,17 @@
+# Generated security reports
+reports/*.json
+
+# Temporary files
+*.tmp
+*.log
+
+# Backup files
+Jenkinsfile.backup
+
+# Sensitive files
+.env
+.env.*
+*.pem
+*.key
+credentials*
+secrets*

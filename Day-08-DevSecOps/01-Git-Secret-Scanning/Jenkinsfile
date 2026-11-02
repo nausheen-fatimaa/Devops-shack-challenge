@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        PROJECT_DIR = 'Day-08-DevSecOps/01-Git-Secret-Scanning'
+        GITLEAKS = '/usr/local/bin/gitleaks'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -11,30 +16,41 @@ pipeline {
 
         stage('Verify Gitleaks') {
             steps {
-                bat 'where gitleaks'
-                bat 'gitleaks version'
+                sh '''
+                    echo "Checking Gitleaks installation"
+                    $GITLEAKS version
+                '''
             }
         }
 
-        stage('Secret Scan') {
+        stage('Secret Scanning') {
             steps {
-                bat 'gitleaks detect --source . --redact --no-git'
+                dir("${PROJECT_DIR}") {
+                    sh '''
+                        echo "Starting Gitleaks security scan"
+
+                        $GITLEAKS dir . \
+                          --config=config/gitleaks.toml \
+                          --redact \
+                          --report-format json \
+                          --report-path reports/gitleaks-report.json
+                    '''
+                }
             }
         }
-
     }
 
     post {
         always {
-            echo 'DevSecOps secret scanning completed.'
+            echo 'Secret scanning completed.'
         }
 
         success {
-            echo '✅ No secrets detected. Pipeline can continue.'
+            echo 'SUCCESS: No secrets detected.'
         }
 
         failure {
-            echo '❌ Secret scan failed. Investigate the detected secret before continuing.'
+            echo 'FAILURE: Secrets detected or scanning failed.'
         }
     }
 }
